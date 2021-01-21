@@ -1,4 +1,4 @@
-module github.com/dktunited/api-output
+module github.com/ipreferwater/api-output
 
 go 1.14
 

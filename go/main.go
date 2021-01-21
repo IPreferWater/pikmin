@@ -7,9 +7,9 @@ import (
 	"net/http"
 	"os"
 
-	"github.com/dktunited/api-output/db"
-	"github.com/dktunited/api-output/model"
 	"github.com/gin-gonic/gin"
+	"github.com/ipreferwater/api-output/db"
+	"github.com/ipreferwater/api-output/model"
 )
 
 func main() {
@@ -24,7 +24,7 @@ func main() {
 	r.POST("/mock/mongo/pikmin", func(c *gin.Context) { createPikmin(c) })
 	r.POST("/mock/mongo/pikmin/bomb", func(c *gin.Context) { givePikminsByColorBombs(c) })
 
-	r.Run(":2000")
+	r.Run(":8000")
 }
 
 func mockModel(c *gin.Context) {

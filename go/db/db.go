@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/dktunited/api-output/model"
+	"github.com/ipreferwater/api-output/model"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
