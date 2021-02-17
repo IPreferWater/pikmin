@@ -8,8 +8,8 @@ import (
 	"os"
 
 	"github.com/gin-gonic/gin"
-	"github.com/ipreferwater/api-output/db"
-	"github.com/ipreferwater/api-output/model"
+	"github.com/ipreferwater/pikmin/go/db"
+	"github.com/ipreferwater/pikmin/go/model"
 )
 
 func main() {
