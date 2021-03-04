@@ -72,7 +72,7 @@ func createPikmin(c *gin.Context) {
 		return
 	}
 
-	newID, err := db.CreatePikmin(input)
+	newID, err := db.PikminRepo.CreatePikmin(input)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "can't work", "log": err.Error()})
 		return
@@ -92,7 +92,7 @@ func givePikminsByColorBombs(c *gin.Context) {
 		return
 	}
 
-	pikmins, err := db.GetPikminsByColor(input.Color)
+	pikmins, err := db.PikminRepo.GetPikminsByColor(input.Color)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "can't work", "log": err.Error()})
 		return
@@ -103,7 +103,8 @@ func givePikminsByColorBombs(c *gin.Context) {
 		return
 	}
 
-	count, err := db.GiveBombs(pikmins)
+	
+	count, err := db.PikminRepo.GiveBombs(pikmins)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "can't work", "log": err.Error()})
 		return

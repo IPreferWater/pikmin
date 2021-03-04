@@ -13,7 +13,7 @@ import (
 )
 //TODO give bomb as a lot of variant, unify the words
 var (
-	db *mongo.Client
+	//db *mongo.Client
 
 	user         = os.Getenv("DB_USER")
 	password     = os.Getenv("DB_PASSWORD")
@@ -22,14 +22,17 @@ var (
 	databaseName = os.Getenv("DB_NAME")
 )
 
+type PikminRepoMongo struct {
+	client *mongo.Client
+}
+
 func InitDatabase() {
 	//TODO
 	//dbURI := fmt.Sprintf("mongodb://%s:%s@%s:%s/%s", user, password, host, port, databaseName)
 	dbURI := fmt.Sprintf("mongodb://%s:%s@%s:%s/%s", "olimar", "password", "db-mongo", "27017", "pikmin-database")
 	clientOptions := options.Client().ApplyURI(dbURI)
 
-	var err error
-	db, err = mongo.Connect(context.TODO(), clientOptions)
+	db, err := mongo.Connect(context.TODO(), clientOptions)
 
 	if err != nil {
 		panic(err)
@@ -40,12 +43,22 @@ func InitDatabase() {
 	if err != nil {
 		panic(err)
 	}
+
+	PikminRepo = newMongoDDPikminRepository(db)
+}
+
+func newMongoDDPikminRepository(db *mongo.Client) PikminRepository {
+	if db == nil {
+		panic("missing db")
+	}
+
+	return &PikminRepoMongo{client: db}
 }
 
 // CRUD
 //create
-func CreatePikmin(model model.Pikmin) (string, error) {
-	collection := getCollection("pikmins")
+func (r *PikminRepoMongo) CreatePikmin(model model.Pikmin) (string, error) {
+	collection := getCollection("pikmins", r.client)
 	//generate a new ID
 	model.ID = primitive.NewObjectID().String()
 	_, err := collection.InsertOne(context.TODO(), model)
@@ -53,8 +66,8 @@ func CreatePikmin(model model.Pikmin) (string, error) {
 }
 
 //get
-func GetPikminsByColor(color string) ([]model.Pikmin, error) {
-	collection := getCollection("pikmins")
+func (r *PikminRepoMongo) GetPikminsByColor(color string) ([]model.Pikmin, error) {
+	collection := getCollection("pikmins", r.client)
 	filter := bson.M{"color": bson.M{"$eq": color}}
 	res, err := collection.Find(context.TODO(), filter)
 
@@ -66,9 +79,10 @@ func GetPikminsByColor(color string) ([]model.Pikmin, error) {
 }
 
 //update
-func InsertPikmin(id string, newModel string) error {
+//TODO
+func (r *PikminRepoMongo) UpdatePikmin(id string, newModel string) error {
 
-	collection := getCollection("pikmins")
+	collection := getCollection("pikmins", r.client)
 
 	opts := options.Update().SetUpsert(true)
 	filter := bson.M{"_id": bson.M{"$eq": id}}
@@ -82,8 +96,8 @@ func InsertPikmin(id string, newModel string) error {
 //delete
 
 //bulk update
-func GiveBombs(pikmins []model.Pikmin) (int64, error) {
-	collection := getCollection("pikmins")
+func (r *PikminRepoMongo) GiveBombs(pikmins []model.Pikmin) (int64, error) {
+	collection := getCollection("pikmins", r.client)
 
 	update := bson.M{"$set": bson.M{"weapons": bson.M{"bomb": true}}}
 	var models []mongo.WriteModel
@@ -98,7 +112,7 @@ func GiveBombs(pikmins []model.Pikmin) (int64, error) {
 	return res.MatchedCount, err
 }
 
-func getCollection(tableName string) *mongo.Collection {
+func getCollection(tableName string, client *mongo.Client) *mongo.Collection {
 	//return db.Database(databaseName).Collection(tableName)
-	return db.Database("pikmin-database").Collection(tableName)
+	return client.Database("pikmin-database").Collection(tableName)
 }
