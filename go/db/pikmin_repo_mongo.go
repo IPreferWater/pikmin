@@ -11,6 +11,7 @@ import (
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
+
 //TODO give bomb as a lot of variant, unify the words
 var (
 	user         = os.Getenv("DB_USER")
@@ -87,9 +88,6 @@ func (r *PikminRepoMongo) UpdatePikmin(id string, newModel string) error {
 	return err
 }
 
-//upsert
-//delete
-
 //bulk update
 func (r *PikminRepoMongo) GiveBombs(pikmins []model.Pikmin) (int64, error) {
 	collection := getCollection("pikmins", r.client)
@@ -105,6 +103,27 @@ func (r *PikminRepoMongo) GiveBombs(pikmins []model.Pikmin) (int64, error) {
 	opts := options.BulkWrite().SetOrdered(false)
 	res, err := collection.BulkWrite(context.TODO(), models, opts)
 	return res.MatchedCount, err
+}
+
+func (r *PikminRepoMongo) DeletePikmins(ids []string) (int64, error) {
+
+	collection := getCollection("pikmins", r.client)
+
+	var filters []bson.M
+	for _, id := range ids {
+		newFilter := bson.M{"_id": bson.M{"$eq": id}}
+		filters = append(filters, newFilter)
+	}
+	filter := bson.M{"$or": filters}
+
+	deleteResult, err := collection.DeleteMany(context.TODO(), filter)
+
+	//prevent nil pointer
+	if deleteResult == nil {
+		return 0, err
+	}
+	
+	return deleteResult.DeletedCount, err
 }
 
 func getCollection(tableName string, client *mongo.Client) *mongo.Collection {

@@ -16,13 +16,11 @@ func main() {
 	db.InitDatabase()
 	r := gin.Default()
 
-	//output
-	r.POST("/mock/model", func(c *gin.Context) { mockModel(c) })
-	r.POST("/mock/any", func(c *gin.Context) { mockAny(c) })
-
 	//database
 	r.POST("/mock/mongo/pikmin", func(c *gin.Context) { createPikmin(c) })
 	r.POST("/mock/mongo/pikmin/bomb", func(c *gin.Context) { givePikminsByColorBombs(c) })
+	r.GET("/mock/mongo/pikmin", func(c *gin.Context) { GetPikminsByColor(c) })
+	r.DELETE("/mock/mongo/pikmin", func(c *gin.Context) { KillPikminsByID(c) })
 
 	r.Run(":8000")
 }
@@ -86,7 +84,7 @@ func createPikmin(c *gin.Context) {
 
 func givePikminsByColorBombs(c *gin.Context) {
 
-	var input model.GiveBombs
+	var input model.InputByColor
 	if err := c.ShouldBindJSON(&input); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "can't parse the payload to requiered model", "log": err.Error()})
 		return
@@ -103,7 +101,6 @@ func givePikminsByColorBombs(c *gin.Context) {
 		return
 	}
 
-	
 	count, err := db.PikminRepo.GiveBombs(pikmins)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "can't work", "log": err.Error()})
@@ -111,10 +108,52 @@ func givePikminsByColorBombs(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, gin.H{
-		"color":          "newID",
+		"color":          input.Color,
 		"obtained_bombs": count,
 	})
 
+}
+
+func GetPikminsByColor(c *gin.Context) {
+	var input model.InputByColor
+	if err := c.ShouldBindJSON(&input); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "can't parse the payload to requiered model", "log": err.Error()})
+		return
+	}
+
+	pikmins, err := db.PikminRepo.GetPikminsByColor(input.Color)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "can't work", "log": err.Error()})
+		return
+	}
+	// not an error
+	if len(pikmins) < 1 {
+		c.JSON(http.StatusOK, gin.H{"log": "no pikmins of this color were found"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"color":   input.Color,
+		"pikmins": pikmins,
+	})
+
+}
+func KillPikminsByID(c *gin.Context) {
+	var input model.InputByPikminsID
+	if err := c.ShouldBindJSON(&input); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "can't parse the payload to requiered model", "log": err.Error()})
+		return
+	}
+
+	count, err := db.PikminRepo.DeletePikmins(input.IDS)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "can't work", "log": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"pikminsKilled": count,
+	})
 }
 
 // transform an interface to []byte that can be saved in a file

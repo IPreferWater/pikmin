@@ -11,4 +11,5 @@ type PikminRepository interface {
 	UpdatePikmin(id string, newModel string) error
 	GetPikminsByColor(color string) ([]model.Pikmin, error)
 	GiveBombs(pikmins []model.Pikmin) (int64, error)
+	DeletePikmins(ids []string) (int64, error)
 }

@@ -11,6 +11,10 @@ type Pikmin struct {
 	Head  string `json:"head" bson:"head" binding:"required"`
 }
 
-type GiveBombs struct {
+type InputByColor struct {
 	Color string `json:"color" bson:"color" binding:"required"`
+}
+
+type InputByPikminsID struct {
+	IDS []string `json:"ids" binding:"required"`
 }
