@@ -4,12 +4,14 @@ services:
     build:
       context: ./go
       dockerfile: Dockerfile
+    env_file:
+      - ./go/dev.env
     depends_on:
       - db-mongo
     ports: 
       - "8000:8000"
     volumes:
-      - ./output:/output
+      - ./output-logs:/output
     networks:
       - mock-network
   

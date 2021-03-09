@@ -13,8 +13,6 @@ import (
 )
 //TODO give bomb as a lot of variant, unify the words
 var (
-	//db *mongo.Client
-
 	user         = os.Getenv("DB_USER")
 	password     = os.Getenv("DB_PASSWORD")
 	host         = os.Getenv("DB_HOST")
@@ -27,9 +25,7 @@ type PikminRepoMongo struct {
 }
 
 func InitDatabase() {
-	//TODO
-	//dbURI := fmt.Sprintf("mongodb://%s:%s@%s:%s/%s", user, password, host, port, databaseName)
-	dbURI := fmt.Sprintf("mongodb://%s:%s@%s:%s/%s", "olimar", "password", "db-mongo", "27017", "pikmin-database")
+	dbURI := fmt.Sprintf("mongodb://%s:%s@%s:%s/%s", user, password, host, port, databaseName)
 	clientOptions := options.Client().ApplyURI(dbURI)
 
 	db, err := mongo.Connect(context.TODO(), clientOptions)
@@ -51,7 +47,6 @@ func newMongoDDPikminRepository(db *mongo.Client) PikminRepository {
 	if db == nil {
 		panic("missing db")
 	}
-
 	return &PikminRepoMongo{client: db}
 }
 
@@ -113,6 +108,5 @@ func (r *PikminRepoMongo) GiveBombs(pikmins []model.Pikmin) (int64, error) {
 }
 
 func getCollection(tableName string, client *mongo.Client) *mongo.Collection {
-	//return db.Database(databaseName).Collection(tableName)
 	return client.Database("pikmin-database").Collection(tableName)
 }

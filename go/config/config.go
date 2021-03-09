@@ -13,22 +13,31 @@ import (
 var Config model.Config
 
 func InitConfig() {
-	getConfigMqtt()
+	Config.MQTTConfig = getConfigMQTT()
+	Config.DatabaseConfig = getConfigDatabase()
 }
 
-func getConfigMqtt() {
-	// easy way to instance an object with nested struct
-	mqtt := Config.MQTT
+func getConfigMQTT() model.MQTTConfig {
+	return model.MQTTConfig{
+		Protocol:     os.Getenv("MQTT_PROTOCOL"),
+		Host:         os.Getenv("MQTT_HOST"),
+		Port:         strEnvToInt("MQTT_PORT"),
+		Qos:          strEnvToInt("MQTT_QOS"),
+		ClientID:     os.Getenv("MQTT_CLIENT_ID"),
+		Username:     os.Getenv("MQTT_CLIENT_ID"),
+		Password:     os.Getenv("MQTT_USERNAME"),
+		Suppliername: os.Getenv("MQTT_PASSWORD"),
+	}
+}
 
-	mqtt.Protocol = os.Getenv("MQTT_PROTOCOL")
-	mqtt.Host = os.Getenv("MQTT_HOST")
-	mqtt.Port = strEnvToInt("MQTT_PORT")
-	mqtt.Qos = strEnvToInt("MQTT_QOS")
-	mqtt.ClientID = os.Getenv("MQTT_CLIENT_ID")
-	mqtt.Username = os.Getenv("MQTT_USERNAME")
-	mqtt.Password = os.Getenv("MQTT_PASSWORD")
-
-	Config.MQTT = mqtt
+func getConfigDatabase()model.DatabaseConfig{
+	return model.DatabaseConfig{
+		User:     os.Getenv("DB_USER"),
+		Password: os.Getenv("DB_PASSWORD"),
+		Host:     os.Getenv("DB_HOST"),
+		Port:     strEnvToInt("DB_PORT"),
+		Name:     os.Getenv("DB_NAME"),
+	}
 }
 
 func strEnvToInt(envString string) int {
